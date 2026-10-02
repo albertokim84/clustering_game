@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연예인 분류 학습</title>
+    <style>
+        body { 
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
+            padding: 20px; 
+            background-color: #f0f2f5; 
+            color: #333;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+        }
+        h1 { text-align: center; color: #1a73e8; margin-bottom: 30px; }
+        
+        /* 텍스트 입력 영역 */
+        .input-group { margin-bottom: 15px; display: flex; align-items: center; }
+        .input-group label { width: 140px; font-weight: bold; font-size: 16px; color: #444; }
+        .input-group input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid #d1d5db; 
+            border-radius: 8px; 
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus { outline: none; border-color: #1a73e8; }
+        
+        /* 드래그 앤 드롭 영역 */
+        .workspace { display: flex; gap: 20px; margin-top: 30px; }
+        .group { 
+            flex: 1; 
+            min-height: 250px; 
+            border: 2px dashed #9ca3af; 
+            border-radius: 12px; 
+            padding: 15px; 
+            background-color: #f9fafb; 
+            transition: all 0.2s;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 12px;
+        }
+        .group h3 { width: 100%; text-align: center; margin-top: 0; color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+        
+        /* 사진 대기 장소 */
+        .photo-pool { 
+            margin-top: 30px; 
+            border: 2px solid #e5e7eb; 
+            padding: 20px; 
+            border-radius: 12px; 
+            background-color: #ffffff; 
+            display: flex; 
+            gap: 12px; 
+            flex-wrap: wrap; 
+            min-height: 120px; 
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .photo-pool h3 { width: 100%; margin-top: 0; margin-bottom: 15px; color: #374151; }
+        
+        /* 개별 사진 */
+        .photo { 
+            width: 110px; 
+            height: 110px; 
+            background-color: #fff; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 10px; 
+            cursor: grab; 
+            object-fit: cover; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+        .photo:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        /* 드래그 오버 시 효과 */
+        .drag-over { background-color: #eff6ff !important; border-color: #3b82f6 !important; }
+        
+        /* 초기화 버튼 */
+        .btn-reset {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .btn-reset:hover { background-color: #e5e7eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>분류 학습 실습</h1>
+        
+        <div class="input-group">
+            <label for="criterion">📌 분류 기준:</label>
+            <input type="text" id="criterion" placeholder="예: 안경 착용 여부, 성별 등">
+        </div>
+        <div class="input-group">
+            <label for="groupA">🅰️ A 집단 특징:</label>
+            <input type="text" id="groupA" placeholder="예: 안경을 착용했다.">
+        </div>
+        <div class="input-group">
+            <label for="groupB">🅱️ B 집단 특징:</label>
+            <input type="text" id="groupB" placeholder="예: 안경을 착용하지 않았다.">
+        </div>
+
+        <div class="workspace">
+            <div class="group" id="group-a" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <h3>A 집단</h3>
+            </div>
+            <div class="group" id="group-b" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <h3>B 집단</h3>
+            </div>
+        </div>
+
+        <div class="photo-pool" id="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+            <h3>🖼️ 연예인 사진 (드래그하여 분류해 보세요)</h3>
+            
+            <!-- 
+              깃허브 레포지토리에 'images' 폴더를 만들고 
+              그 안에 슬라이드의 사진들을 1.jpg, 2.jpg 이름으로 올려주세요.
+              (사진이 없으면 회색 기본 이미지가 나타납니다)
+            -->
+            <img src="images/1.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img1" alt="사진1" onerror="this.src='https://via.placeholder.com/110?text=사진1'">
+            <img src="images/2.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img2" alt="사진2" onerror="this.src='https://via.placeholder.com/110?text=사진2'">
+            <img src="images/3.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img3" alt="사진3" onerror="this.src='https://via.placeholder.com/110?text=사진3'">
+            <img src="images/4.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img4" alt="사진4" onerror="this.src='https://via.placeholder.com/110?text=사진4'">
+            <img src="images/5.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img5" alt="사진5" onerror="this.src='https://via.placeholder.com/110?text=사진5'">
+            <img src="images/6.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img6" alt="사진6" onerror="this.src='https://via.placeholder.com/110?text=사진6'">
+        </div>
+        
+        <button class="btn-reset" onclick="resetPhotos()">🔄 사진 원래대로 되돌리기</button>
+    </div>
+
+    <script>
+        function allowDrop(ev) {
+            ev.preventDefault();
+            let target = ev.currentTarget;
+            if(target.classList.contains('group') || target.id === 'pool') {
+                target.classList.add('drag-over');
+            }
+        }
+
+        function dragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            let target = ev.currentTarget;
+            target.classList.remove('drag-over');
+            
+            var data = ev.dataTransfer.getData("text");
+            var draggedElement = document.getElementById(data);
+            
+            if(target.classList.contains('group') || target.id === 'pool') {
+                target.appendChild(draggedElement);
+            }
+        }
+        
+        // 학생이 실습 중 사진 배치를 초기화할 수 있는 기능
+        function resetPhotos() {
+            const pool = document.getElementById('pool');
+            const photos = document.querySelectorAll('.photo');
+            photos.forEach(photo => {
+                pool.appendChild(photo);
+            });
+        }
+    </script>
+</body>
+</html>
