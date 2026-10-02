@@ -129,17 +129,15 @@
         <div class="photo-pool" id="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
             <h3>🖼️ 연예인 사진 (드래그하여 분류해 보세요)</h3>
             
-            <!-- 
-              깃허브 레포지토리에 'images' 폴더를 만들고 
-              그 안에 슬라이드의 사진들을 1.jpg, 2.jpg 이름으로 올려주세요.
-              (사진이 없으면 회색 기본 이미지가 나타납니다)
-            -->
-            <img src="images/1.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img1" alt="사진1" onerror="this.src='https://via.placeholder.com/110?text=사진1'">
-            <img src="images/2.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img2" alt="사진2" onerror="this.src='https://via.placeholder.com/110?text=사진2'">
-            <img src="images/3.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img3" alt="사진3" onerror="this.src='https://via.placeholder.com/110?text=사진3'">
-            <img src="images/4.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img4" alt="사진4" onerror="this.src='https://via.placeholder.com/110?text=사진4'">
-            <img src="images/5.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img5" alt="사진5" onerror="this.src='https://via.placeholder.com/110?text=사진5'">
-            <img src="images/6.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img6" alt="사진6" onerror="this.src='https://via.placeholder.com/110?text=사진6'">
+            <!-- 경로를 image/ 로 변경하고 사진을 8개로 늘렸습니다. -->
+            <img src="image/1.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img1" alt="사진1" onerror="this.src='https://via.placeholder.com/110?text=사진1'">
+            <img src="image/2.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img2" alt="사진2" onerror="this.src='https://via.placeholder.com/110?text=사진2'">
+            <img src="image/3.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img3" alt="사진3" onerror="this.src='https://via.placeholder.com/110?text=사진3'">
+            <img src="image/4.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img4" alt="사진4" onerror="this.src='https://via.placeholder.com/110?text=사진4'">
+            <img src="image/5.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img5" alt="사진5" onerror="this.src='https://via.placeholder.com/110?text=사진5'">
+            <img src="image/6.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img6" alt="사진6" onerror="this.src='https://via.placeholder.com/110?text=사진6'">
+            <img src="image/7.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img7" alt="사진7" onerror="this.src='https://via.placeholder.com/110?text=사진7'">
+            <img src="image/8.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img8" alt="사진8" onerror="this.src='https://via.placeholder.com/110?text=사진8'">
         </div>
         
         <button class="btn-reset" onclick="resetPhotos()">🔄 사진 원래대로 되돌리기</button>
@@ -175,7 +173,6 @@
             }
         }
         
-        // 학생이 실습 중 사진 배치를 초기화할 수 있는 기능
         function resetPhotos() {
             const pool = document.getElementById('pool');
             const photos = document.querySelectorAll('.photo');
