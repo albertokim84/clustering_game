@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>연예인 군집화/분류 학습</title>
+    <title>연예인 군집화 학습</title>
     <style>
         body { 
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
@@ -118,10 +118,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>분류(군집화) 학습 실습</h1>
+        <h1>군집화 학습 실습</h1>
         
         <div class="input-group">
-            <label for="criterion">📌 분류 기준:</label>
+            <label for="criterion">📌 군집화 기준:</label>
             <input type="text" id="criterion" placeholder="예: 안경 착용 여부, 성별 등">
         </div>
         <div class="input-group">
@@ -143,7 +143,7 @@
         </div>
 
         <div class="photo-pool" id="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <h3>🖼️ 연예인 사진 (드래그/터치하여 분류해 보세요)</h3>
+            <h3>🖼️ 연예인 사진 (드래그/터치하여 집단에 맞게 옮겨보세요.)</h3>
             
             <!-- 사진 경로 (image/ 폴더) 및 8장 유지 -->
             <img src="image/1.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img1" alt="사진1" onerror="this.src='https://via.placeholder.com/110?text=사진1'">
