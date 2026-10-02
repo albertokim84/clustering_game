@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>연예인 분류 학습</title>
+    <title>연예인 군집 학습</title>
     <style>
         body { 
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
@@ -102,10 +102,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>분류 학습 실습</h1>
+        <h1>군집 학습 실습</h1>
         
         <div class="input-group">
-            <label for="criterion">📌 분류 기준:</label>
+            <label for="criterion">📌 군집 기준:</label>
             <input type="text" id="criterion" placeholder="예: 안경 착용 여부, 성별 등">
         </div>
         <div class="input-group">
@@ -127,7 +127,7 @@
         </div>
 
         <div class="photo-pool" id="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <h3>🖼️ 연예인 사진 (드래그하여 분류해 보세요)</h3>
+            <h3>🖼️ 연예인 사진 (드래그하여 군집을 만들어 보세요)</h3>
             
             <!-- 경로를 image/ 로 변경하고 사진을 8개로 늘렸습니다. -->
             <img src="image/1.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img1" alt="사진1" onerror="this.src='https://via.placeholder.com/110?text=사진1'">
