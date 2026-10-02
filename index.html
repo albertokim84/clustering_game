@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>연예인 군집 학습</title>
+    <title>연예인 군집화/분류 학습</title>
     <style>
         body { 
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
             padding: 20px; 
             background-color: #f0f2f5; 
             color: #333;
+            /* 모바일에서 글씨 선택되는 현상 방지 */
+            -webkit-user-select: none;
+            user-select: none;
         }
         .container { 
             max-width: 900px; 
@@ -21,7 +24,7 @@
         }
         h1 { text-align: center; color: #1a73e8; margin-bottom: 30px; }
         
-        /* 텍스트 입력 영역 */
+        /* 텍스트 입력 영역 (입력칸은 텍스트 선택 허용) */
         .input-group { margin-bottom: 15px; display: flex; align-items: center; }
         .input-group label { width: 140px; font-weight: bold; font-size: 16px; color: #444; }
         .input-group input { 
@@ -31,6 +34,8 @@
             border-radius: 8px; 
             font-size: 15px;
             transition: border-color 0.2s;
+            -webkit-user-select: auto;
+            user-select: auto;
         }
         .input-group input:focus { outline: none; border-color: #1a73e8; }
         
@@ -78,6 +83,8 @@
             object-fit: cover; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: transform 0.1s;
+            /* 터치 시 기본 동작(돋보기 등) 방지 */
+            touch-action: none; 
         }
         .photo:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
@@ -98,14 +105,23 @@
             font-weight: bold;
         }
         .btn-reset:hover { background-color: #e5e7eb; }
+
+        /* 모바일 세로 모드 대응 */
+        @media (max-width: 600px) {
+            .workspace { flex-direction: column; }
+            .group { min-height: 150px; }
+            .input-group { flex-direction: column; align-items: flex-start; }
+            .input-group label { margin-bottom: 5px; }
+            .input-group input { width: 100%; box-sizing: border-box; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>군집 학습 실습</h1>
+        <h1>분류(군집화) 학습 실습</h1>
         
         <div class="input-group">
-            <label for="criterion">📌 군집 기준:</label>
+            <label for="criterion">📌 분류 기준:</label>
             <input type="text" id="criterion" placeholder="예: 안경 착용 여부, 성별 등">
         </div>
         <div class="input-group">
@@ -127,9 +143,9 @@
         </div>
 
         <div class="photo-pool" id="pool" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
-            <h3>🖼️ 연예인 사진 (드래그하여 군집을 만들어 보세요)</h3>
+            <h3>🖼️ 연예인 사진 (드래그/터치하여 분류해 보세요)</h3>
             
-            <!-- 경로를 image/ 로 변경하고 사진을 8개로 늘렸습니다. -->
+            <!-- 사진 경로 (image/ 폴더) 및 8장 유지 -->
             <img src="image/1.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img1" alt="사진1" onerror="this.src='https://via.placeholder.com/110?text=사진1'">
             <img src="image/2.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img2" alt="사진2" onerror="this.src='https://via.placeholder.com/110?text=사진2'">
             <img src="image/3.jpg" class="photo" draggable="true" ondragstart="drag(event)" id="img3" alt="사진3" onerror="this.src='https://via.placeholder.com/110?text=사진3'">
@@ -144,6 +160,9 @@
     </div>
 
     <script>
+        // ==========================================
+        // 1. PC 환경: 마우스 드래그 앤 드롭 이벤트
+        // ==========================================
         function allowDrop(ev) {
             ev.preventDefault();
             let target = ev.currentTarget;
@@ -179,6 +198,88 @@
             photos.forEach(photo => {
                 pool.appendChild(photo);
             });
+        }
+
+        // ==========================================
+        // 2. 모바일 환경: 화면 터치 이벤트 추가
+        // ==========================================
+        let currentDrag = null;
+        let ghost = null;
+
+        // 화면 터치 시작 시
+        document.addEventListener('touchstart', function(e) {
+            if (e.target.classList.contains('photo')) {
+                currentDrag = e.target;
+                
+                // 손가락을 따라다닐 가짜 이미지(고스트) 생성
+                ghost = currentDrag.cloneNode(true);
+                ghost.style.position = 'absolute';
+                ghost.style.opacity = '0.8';
+                ghost.style.pointerEvents = 'none'; // 고스트 때문에 아래 영역이 터치 안 되는 것 방지
+                ghost.style.zIndex = '1000';
+                ghost.style.margin = '0';
+                
+                document.body.appendChild(ghost);
+                
+                moveGhost(e.touches[0].pageX, e.touches[0].pageY);
+                currentDrag.style.opacity = '0.3'; // 원래 이미지는 흐릿하게 처리
+            }
+        }, {passive: false});
+
+        // 화면에서 손가락을 이동할 때
+        document.addEventListener('touchmove', function(e) {
+            if (!ghost) return;
+            
+            // 사진을 끄는 동안 화면 자체가 위아래로 스크롤되는 것을 방지
+            if(e.cancelable) e.preventDefault(); 
+            
+            moveGhost(e.touches[0].pageX, e.touches[0].pageY);
+            
+            // 손가락이 가리키는 위치 아래에 어떤 영역(A집단, B집단 등)이 있는지 확인
+            const touch = e.touches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            document.querySelectorAll('.group, .photo-pool').forEach(el => el.classList.remove('drag-over'));
+            
+            if (dropTarget) {
+                const zone = dropTarget.closest('.group, .photo-pool');
+                if (zone) zone.classList.add('drag-over');
+            }
+        }, {passive: false});
+
+        // 화면에서 손가락을 뗄 때 (드롭)
+        document.addEventListener('touchend', function(e) {
+            if (!ghost || !currentDrag) return;
+            
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (dropTarget) {
+                // 손가락을 뗀 위치가 드롭 가능한 영역이면 사진을 이동시킴
+                const zone = dropTarget.closest('.group, .photo-pool');
+                if (zone) {
+                    zone.appendChild(currentDrag); 
+                }
+            }
+            
+            // 시각적 효과 초기화 및 고스트 이미지 삭제
+            document.querySelectorAll('.group, .photo-pool').forEach(el => el.classList.remove('drag-over'));
+            currentDrag.style.opacity = '1';
+            
+            if (ghost && ghost.parentNode) {
+                ghost.parentNode.removeChild(ghost);
+            }
+            
+            ghost = null;
+            currentDrag = null;
+        });
+
+        // 고스트 이미지가 손가락 중앙을 따라다니게 하는 함수
+        function moveGhost(x, y) {
+            if(ghost) {
+                ghost.style.left = (x - ghost.offsetWidth / 2) + 'px';
+                ghost.style.top = (y - ghost.offsetHeight / 2) + 'px';
+            }
         }
     </script>
 </body>
